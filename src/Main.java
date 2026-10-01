@@ -28,7 +28,7 @@ public class Main {
             double consumption = currentReading - previousReading;
 
             BillCalculator calculator = new BillCalculator();
-double bill = calculator.calculateBill(consumption);
+            double bill = calculator.calculateBill(consumption);
 
             System.out.println();
             System.out.println("Household: " + householdId);
@@ -38,7 +38,15 @@ double bill = calculator.calculateBill(consumption);
 
         } else if (choice == 2) {
 
-            System.out.println("Bill calculation will be added next.");
+            System.out.print("Enter consumption: ");
+            double consumption = scanner.nextDouble();
+
+            BillCalculator calculator = new BillCalculator();
+            double bill = calculator.calculateBill(consumption);
+
+            System.out.println();
+            System.out.println("Consumption: " + consumption + " units");
+            System.out.println("Bill: ₹" + bill);
 
         } else if (choice == 3) {
 

@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# KLH-FED-2026-Java-project
-=======
+
 NAME OF THE PROJECT : Household Water-Usage & Billing Monitor
 PROJECT CODE :KLEHB-FED-26-10-23-Household-Water-Usage-Billing-Monitor
 TEAM MEMBERS NAME : E.V.VARA PRASAD (2620030676)
@@ -20,4 +18,3 @@ Select an option from the menu.
 Enter the required household and meter reading details.
 View the water usage, bill, leak detection, and report results.
 
->>>>>>> origin/main
