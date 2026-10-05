@@ -36,11 +36,13 @@ public class Main {
             BillCalculator calculator = new BillCalculator();
             double bill = calculator.calculateBill(consumption);
 
+            double usagePerPerson = consumption / occupants;
+
             System.out.println();
             System.out.println("Household: " + householdId);
             System.out.println("Occupants: " + occupants);
             System.out.println("Consumption: " + consumption + " units");
-            System.out.println("Bill: ₹" + bill);
+            System.out.println("Bill: Rs." + bill);
 
             if (leakDetected) {
                 System.out.println("Leak status: LIKELY LEAK");
@@ -52,6 +54,14 @@ public class Main {
                 System.out.println("Usage status: OVERUSE");
             } else {
                 System.out.println("Usage status: Normal usage");
+            }
+
+            System.out.println("Usage per person: " + usagePerPerson + " units");
+
+            if (usagePerPerson > 50) {
+                System.out.println("Per-person status: HIGH USAGE");
+            } else {
+                System.out.println("Per-person status: Normal usage");
             }
 
             System.out.println("Reading added successfully.");
@@ -66,7 +76,7 @@ public class Main {
 
             System.out.println();
             System.out.println("Consumption: " + consumption + " units");
-            System.out.println("Bill: ₹" + bill);
+            System.out.println("Bill: Rs." + bill);
 
         } else if (choice == 3) {
 
