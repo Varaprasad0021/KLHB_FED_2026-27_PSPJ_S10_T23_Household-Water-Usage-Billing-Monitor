@@ -2,70 +2,82 @@ import java.util.Scanner;
 
 public class Main {
 
-public static void main(String[] args) {
+    public static void main(String[] args) {
 
-Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
-System.out.println("=== Water Board ===");
-System.out.println("1) Add reading");
-System.out.println("2) Bill");
-System.out.println("3) Exit");
+        System.out.println("=== Water Board ===");
+        System.out.println("1) Add reading");
+        System.out.println("2) Bill");
+        System.out.println("3) Exit");
 
-System.out.print("Choice: ");
-int choice = scanner.nextInt();
+        System.out.print("Choice: ");
+        int choice = scanner.nextInt();
 
-if (choice == 1) {
+        if (choice == 1) {
 
-System.out.print("Household ID: ");
-String householdId = scanner.next();
+            System.out.print("Household ID: ");
+            String householdId = scanner.next();
 
-System.out.print("Number of occupants: ");
-int occupants = scanner.nextInt();
+            System.out.print("Number of occupants: ");
+            int occupants = scanner.nextInt();
 
-System.out.print("Previous reading: ");
-double previousReading = scanner.nextDouble();
+            System.out.print("Previous reading: ");
+            double previousReading = scanner.nextDouble();
 
-System.out.print("Current reading: ");
-double currentReading = scanner.nextDouble();
+            System.out.print("Current reading: ");
+            double currentReading = scanner.nextDouble();
 
-System.out.print("Is there a leak? (true/false): ");
-boolean leakDetected = scanner.nextBoolean();
+            System.out.print("Is there a leak? (true/false): ");
+            boolean leakDetected = scanner.nextBoolean();
 
-double consumption = currentReading - previousReading;
+            double consumption = currentReading - previousReading;
 
-BillCalculator calculator = new BillCalculator();
-double bill = calculator.calculateBill(consumption);
+            BillCalculator calculator = new BillCalculator();
+            double bill = calculator.calculateBill(consumption);
 
-System.out.println();
-System.out.println("Household: " + householdId);
-System.out.println("Occupants: " + occupants);
-System.out.println("Consumption: " + consumption + " units");
-System.out.println("Leak detected: " + leakDetected);
-System.out.println("Bill: ₹" + bill);
-System.out.println("Reading added successfully.");
+            System.out.println();
+            System.out.println("Household: " + householdId);
+            System.out.println("Occupants: " + occupants);
+            System.out.println("Consumption: " + consumption + " units");
+            System.out.println("Bill: ₹" + bill);
 
-} else if (choice == 2) {
+            if (leakDetected) {
+                System.out.println("Leak status: LIKELY LEAK");
+            } else {
+                System.out.println("Leak status: No leak detected");
+            }
 
-System.out.print("Enter consumption: ");
-double consumption = scanner.nextDouble();
+            if (consumption > 200) {
+                System.out.println("Usage status: OVERUSE");
+            } else {
+                System.out.println("Usage status: Normal usage");
+            }
 
-BillCalculator calculator = new BillCalculator();
-double bill = calculator.calculateBill(consumption);
+            System.out.println("Reading added successfully.");
 
-System.out.println();
-System.out.println("Consumption: " + consumption + " units");
-System.out.println("Bill: ₹" + bill);
+        } else if (choice == 2) {
 
-} else if (choice == 3) {
+            System.out.print("Enter consumption: ");
+            double consumption = scanner.nextDouble();
 
-System.out.println("Thank you for using Water Board.");
+            BillCalculator calculator = new BillCalculator();
+            double bill = calculator.calculateBill(consumption);
 
-} else {
+            System.out.println();
+            System.out.println("Consumption: " + consumption + " units");
+            System.out.println("Bill: ₹" + bill);
 
-System.out.println("Invalid choice.");
+        } else if (choice == 3) {
 
-}
+            System.out.println("Thank you for using Water Board.");
 
-scanner.close();
-}
+        } else {
+
+            System.out.println("Invalid choice.");
+
+        }
+
+        scanner.close();
+    }
 }
