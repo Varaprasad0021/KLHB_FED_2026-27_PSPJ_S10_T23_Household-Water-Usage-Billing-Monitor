@@ -9,7 +9,8 @@ public class Main {
         System.out.println("=== Water Board ===");
         System.out.println("1) Add reading");
         System.out.println("2) Bill");
-        System.out.println("3) Exit");
+        System.out.println("3) Report");
+        System.out.println("4) Exit");
 
         System.out.print("Choice: ");
         int choice = scanner.nextInt();
@@ -79,6 +80,13 @@ public class Main {
             System.out.println("Bill: Rs." + bill);
 
         } else if (choice == 3) {
+
+            System.out.println();
+            System.out.println("=== Water Usage Report ===");
+            System.out.println("The report summarizes household water usage.");
+            System.out.println("Use option 1 to add a new household reading.");
+
+        } else if (choice == 4) {
 
             System.out.println("Thank you for using Water Board.");
 
