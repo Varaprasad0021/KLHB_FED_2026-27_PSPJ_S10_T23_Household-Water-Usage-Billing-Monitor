@@ -9,9 +9,8 @@ public class Main {
         System.out.println("=== Water Board ===");
         System.out.println("1) Add reading");
         System.out.println("2) Bill");
-        System.out.println("3) Report");
-        System.out.println("4) Exit");
-
+              System.out.println("3) Report");
+        System.out.println("4) Household Consumption Grid");
         System.out.print("Choice: ");
         int choice = scanner.nextInt();
 
@@ -89,6 +88,53 @@ public class Main {
         } else if (choice == 4) {
 
             System.out.println("Thank you for using Water Board.");
+
+        } else if (choice == 4) {
+
+            System.out.print("Number of households: ");
+            int households = scanner.nextInt();
+
+            System.out.print("Number of periods: ");
+            int periods = scanner.nextInt();
+
+            String[] householdIds = new String[households];
+            double[][] consumptionGrid = new double[households][periods];
+
+            for (int i = 0; i < households; i++) {
+
+                System.out.print("Enter Household ID for household " + (i + 1) + ": ");
+                householdIds[i] = scanner.next();
+
+                for (int j = 0; j < periods; j++) {
+
+                    System.out.print("Enter consumption for "
+                            + householdIds[i] + " - Period " + (j + 1) + ": ");
+
+                    consumptionGrid[i][j] = scanner.nextDouble();
+                }
+            }
+
+            System.out.println();
+            System.out.println("=== Household x Period Consumption Grid ===");
+
+            System.out.printf("%-15s", "Household");
+
+            for (int j = 0; j < periods; j++) {
+                System.out.printf("%-12s", "Period " + (j + 1));
+            }
+
+            System.out.println();
+
+            for (int i = 0; i < households; i++) {
+
+                System.out.printf("%-15s", householdIds[i]);
+
+                for (int j = 0; j < periods; j++) {
+                    System.out.printf("%-12.2f", consumptionGrid[i][j]);
+                }
+
+                System.out.println();
+            }
 
         } else {
 
