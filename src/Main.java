@@ -1,3 +1,4 @@
+
 import java.util.Scanner;
 
 public class Main {
@@ -11,6 +12,7 @@ public class Main {
         System.out.println("2) Bill");
         System.out.println("3) Report");
         System.out.println("4) Household Consumption Grid");
+        System.out.println("5) Exit");
         System.out.print("Choice: ");
 
         int choice = scanner.nextInt();
@@ -23,28 +25,59 @@ public class Main {
             System.out.print("Number of occupants: ");
             int occupants = scanner.nextInt();
 
+            if (occupants <= 0) {
+                System.out.println(
+                        "Number of occupants must be greater than zero.");
+                scanner.close();
+                return;
+            }
+
             System.out.print("Previous reading: ");
             double previousReading = scanner.nextDouble();
 
             System.out.print("Current reading: ");
             double currentReading = scanner.nextDouble();
 
+            if (previousReading < 0
+                    || currentReading < previousReading) {
+                System.out.println("Invalid meter readings.");
+                scanner.close();
+                return;
+            }
+
             System.out.print("Is there a leak? (true/false): ");
             boolean leakDetected = scanner.nextBoolean();
 
-            double consumption = currentReading - previousReading;
+            Household household =
+                    new Household(householdId, occupants);
+
+            Meter meter =
+                    new Meter(previousReading, currentReading);
+
+            Reading reading =
+                    new Reading(household, meter, leakDetected);
+
+            double consumption = reading.getConsumption();
 
             BillCalculator calculator = new BillCalculator();
             double bill = calculator.calculateBill(consumption);
 
-            double usagePerPerson = consumption / occupants;
+            double usagePerPerson = reading.getUsagePerPerson();
 
-            System.out.println("\nHousehold: " + householdId);
-            System.out.println("Occupants: " + occupants);
-            System.out.println("Consumption: " + consumption + " units");
-            System.out.println("Bill: Rs." + bill);
+            System.out.println("\n=== Reading Details ===");
+            System.out.println("Household: "
+                    + reading.getHousehold().getHouseholdId());
+            System.out.println("Occupants: "
+                    + reading.getHousehold().getOccupants());
+            System.out.println("Previous reading: "
+                    + meter.getPreviousReading());
+            System.out.println("Current reading: "
+                    + meter.getCurrentReading());
+            System.out.println("Consumption: "
+                    + consumption + " units");
+            System.out.printf("Bill: Rs.%.2f%n", bill);
 
-            if (leakDetected) {
+            if (reading.isLeakDetected()) {
                 System.out.println("Leak status: LIKELY LEAK");
             } else {
                 System.out.println("Leak status: No leak detected");
@@ -56,8 +89,8 @@ public class Main {
                 System.out.println("Usage status: Normal usage");
             }
 
-            System.out.println("Usage per person: "
-                    + usagePerPerson + " units");
+            System.out.printf("Usage per person: %.2f units%n",
+                    usagePerPerson);
 
             if (usagePerPerson > 50) {
                 System.out.println("Per-person status: HIGH USAGE");
@@ -72,11 +105,16 @@ public class Main {
             System.out.print("Enter consumption: ");
             double consumption = scanner.nextDouble();
 
-            BillCalculator calculator = new BillCalculator();
-            double bill = calculator.calculateBill(consumption);
+            if (consumption < 0) {
+                System.out.println("Consumption cannot be negative.");
+            } else {
+                BillCalculator calculator = new BillCalculator();
+                double bill = calculator.calculateBill(consumption);
 
-            System.out.println("Consumption: " + consumption + " units");
-            System.out.println("Bill: Rs." + bill);
+                System.out.println("Consumption: "
+                        + consumption + " units");
+                System.out.printf("Bill: Rs.%.2f%n", bill);
+            }
 
         } else if (choice == 3) {
 
@@ -84,7 +122,7 @@ public class Main {
             System.out.println(
                     "The report summarizes household water usage.");
             System.out.println(
-                    "Use option 1 to add a new household reading.");
+                    "Use option 1 to enter a household reading.");
 
         } else if (choice == 4) {
 
@@ -110,7 +148,6 @@ public class Main {
                     householdIds[i] = scanner.next();
 
                     for (int j = 0; j < periods; j++) {
-
                         System.out.print("Enter consumption for "
                                 + householdIds[i] + " - Period "
                                 + (j + 1) + ": ");
@@ -131,7 +168,6 @@ public class Main {
                 System.out.println();
 
                 for (int i = 0; i < households; i++) {
-
                     System.out.printf("%-15s", householdIds[i]);
 
                     for (int j = 0; j < periods; j++) {
@@ -142,6 +178,10 @@ public class Main {
                     System.out.println();
                 }
             }
+
+        } else if (choice == 5) {
+
+            System.out.println("Thank you for using Water Board.");
 
         } else {
 
