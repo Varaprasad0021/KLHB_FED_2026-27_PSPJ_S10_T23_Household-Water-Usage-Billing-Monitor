@@ -9,9 +9,10 @@ public class Main {
         System.out.println("=== Water Board ===");
         System.out.println("1) Add reading");
         System.out.println("2) Bill");
-              System.out.println("3) Report");
+        System.out.println("3) Report");
         System.out.println("4) Household Consumption Grid");
         System.out.print("Choice: ");
+
         int choice = scanner.nextInt();
 
         if (choice == 1) {
@@ -38,8 +39,7 @@ public class Main {
 
             double usagePerPerson = consumption / occupants;
 
-            System.out.println();
-            System.out.println("Household: " + householdId);
+            System.out.println("\nHousehold: " + householdId);
             System.out.println("Occupants: " + occupants);
             System.out.println("Consumption: " + consumption + " units");
             System.out.println("Bill: Rs." + bill);
@@ -56,7 +56,8 @@ public class Main {
                 System.out.println("Usage status: Normal usage");
             }
 
-            System.out.println("Usage per person: " + usagePerPerson + " units");
+            System.out.println("Usage per person: "
+                    + usagePerPerson + " units");
 
             if (usagePerPerson > 50) {
                 System.out.println("Per-person status: HIGH USAGE");
@@ -74,20 +75,16 @@ public class Main {
             BillCalculator calculator = new BillCalculator();
             double bill = calculator.calculateBill(consumption);
 
-            System.out.println();
             System.out.println("Consumption: " + consumption + " units");
             System.out.println("Bill: Rs." + bill);
 
         } else if (choice == 3) {
 
-            System.out.println();
-            System.out.println("=== Water Usage Report ===");
-            System.out.println("The report summarizes household water usage.");
-            System.out.println("Use option 1 to add a new household reading.");
-
-        } else if (choice == 4) {
-
-            System.out.println("Thank you for using Water Board.");
+            System.out.println("\n=== Water Usage Report ===");
+            System.out.println(
+                    "The report summarizes household water usage.");
+            System.out.println(
+                    "Use option 1 to add a new household reading.");
 
         } else if (choice == 4) {
 
@@ -97,49 +94,58 @@ public class Main {
             System.out.print("Number of periods: ");
             int periods = scanner.nextInt();
 
-            String[] householdIds = new String[households];
-            double[][] consumptionGrid = new double[households][periods];
+            if (households <= 0 || periods <= 0) {
+                System.out.println(
+                        "Households and periods must be greater than zero.");
+            } else {
 
-            for (int i = 0; i < households; i++) {
+                String[] householdIds = new String[households];
+                double[][] consumptionGrid =
+                        new double[households][periods];
 
-                System.out.print("Enter Household ID for household " + (i + 1) + ": ");
-                householdIds[i] = scanner.next();
+                for (int i = 0; i < households; i++) {
 
-                for (int j = 0; j < periods; j++) {
+                    System.out.print("Enter Household ID for household "
+                            + (i + 1) + ": ");
+                    householdIds[i] = scanner.next();
 
-                    System.out.print("Enter consumption for "
-                            + householdIds[i] + " - Period " + (j + 1) + ": ");
+                    for (int j = 0; j < periods; j++) {
 
-                    consumptionGrid[i][j] = scanner.nextDouble();
+                        System.out.print("Enter consumption for "
+                                + householdIds[i] + " - Period "
+                                + (j + 1) + ": ");
+
+                        consumptionGrid[i][j] = scanner.nextDouble();
+                    }
                 }
-            }
 
-            System.out.println();
-            System.out.println("=== Household x Period Consumption Grid ===");
+                System.out.println(
+                        "\n=== Household x Period Consumption Grid ===");
 
-            System.out.printf("%-15s", "Household");
-
-            for (int j = 0; j < periods; j++) {
-                System.out.printf("%-12s", "Period " + (j + 1));
-            }
-
-            System.out.println();
-
-            for (int i = 0; i < households; i++) {
-
-                System.out.printf("%-15s", householdIds[i]);
+                System.out.printf("%-15s", "Household");
 
                 for (int j = 0; j < periods; j++) {
-                    System.out.printf("%-12.2f", consumptionGrid[i][j]);
+                    System.out.printf("%-12s", "Period " + (j + 1));
                 }
 
                 System.out.println();
+
+                for (int i = 0; i < households; i++) {
+
+                    System.out.printf("%-15s", householdIds[i]);
+
+                    for (int j = 0; j < periods; j++) {
+                        System.out.printf("%-12.2f",
+                                consumptionGrid[i][j]);
+                    }
+
+                    System.out.println();
+                }
             }
 
         } else {
 
             System.out.println("Invalid choice.");
-
         }
 
         scanner.close();
