@@ -1,15 +1,22 @@
 public class BillCalculator {
 
-    double calculateBill(double consumption) {
+    private Tariff tariff;
 
-        double bill;
+    public BillCalculator() {
+        this.tariff = new StandardTariff();
+    }
 
-        if (consumption <= 100) {
-            bill = consumption * 5;
-        } else {
-            bill = (100 * 5) + ((consumption - 100) * 8);
+    public BillCalculator(Tariff tariff) {
+        if (tariff == null) {
+            throw new IllegalArgumentException(
+                    "Tariff cannot be null.");
         }
 
-        return bill;
+        this.tariff = tariff;
+    }
+
+    public double calculateBill(double consumption)
+            throws InvalidConsumptionException {
+        return tariff.calculateBill(consumption);
     }
 }

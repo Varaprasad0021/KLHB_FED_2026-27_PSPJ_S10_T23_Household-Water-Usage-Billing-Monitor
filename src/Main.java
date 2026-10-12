@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 
 public class Main {
@@ -38,82 +37,101 @@ public class Main {
             System.out.print("Current reading: ");
             double currentReading = scanner.nextDouble();
 
-            if (previousReading < 0
-                    || currentReading < previousReading) {
-                System.out.println("Invalid meter readings.");
-                scanner.close();
-                return;
-            }
-
             System.out.print("Is there a leak? (true/false): ");
             boolean leakDetected = scanner.nextBoolean();
 
-            Household household =
-                    new Household(householdId, occupants);
+            try {
+                Household household =
+                        new Household(householdId, occupants);
 
-            Meter meter =
-                    new Meter(previousReading, currentReading);
+                Meter meter =
+                        new Meter(previousReading, currentReading);
 
-            Reading reading =
-                    new Reading(household, meter, leakDetected);
+                Reading reading =
+                        new Reading(household, meter, leakDetected);
 
-            double consumption = reading.getConsumption();
+                BillCalculator calculator = new BillCalculator();
+                double consumption = reading.getConsumption();
+                double bill = calculator.calculateBill(consumption);
 
-            BillCalculator calculator = new BillCalculator();
-            double bill = calculator.calculateBill(consumption);
+                System.out.println("\n=== Reading Details ===");
+                System.out.println("Household: "
+                        + household.getHouseholdId());
+                System.out.println("Occupants: "
+                        + household.getOccupants());
+                System.out.println("Previous reading: "
+                        + meter.getPreviousReading());
+                System.out.println("Current reading: "
+                        + meter.getCurrentReading());
+                System.out.println("Consumption: "
+                        + consumption + " units");
+                System.out.printf("Standard tariff bill: Rs.%.2f%n", bill);
 
-            double usagePerPerson = reading.getUsagePerPerson();
+                if (reading.isLeakDetected()) {
+                    System.out.println("Leak status: LIKELY LEAK");
+                } else {
+                    System.out.println("Leak status: No leak detected");
+                }
 
-            System.out.println("\n=== Reading Details ===");
-            System.out.println("Household: "
-                    + reading.getHousehold().getHouseholdId());
-            System.out.println("Occupants: "
-                    + reading.getHousehold().getOccupants());
-            System.out.println("Previous reading: "
-                    + meter.getPreviousReading());
-            System.out.println("Current reading: "
-                    + meter.getCurrentReading());
-            System.out.println("Consumption: "
-                    + consumption + " units");
-            System.out.printf("Bill: Rs.%.2f%n", bill);
+                if (consumption > 200) {
+                    System.out.println("Usage status: OVERUSE");
+                } else {
+                    System.out.println("Usage status: Normal usage");
+                }
 
-            if (reading.isLeakDetected()) {
-                System.out.println("Leak status: LIKELY LEAK");
-            } else {
-                System.out.println("Leak status: No leak detected");
+                System.out.printf("Usage per person: %.2f units%n",
+                        reading.getUsagePerPerson());
+
+                if (reading.getUsagePerPerson() > 50) {
+                    System.out.println("Per-person status: HIGH USAGE");
+                } else {
+                    System.out.println("Per-person status: Normal usage");
+                }
+
+                System.out.println("Reading added successfully.");
+
+            } catch (InvalidReadingException
+                    | InvalidConsumptionException e) {
+                System.out.println("Error: " + e.getMessage());
             }
-
-            if (consumption > 200) {
-                System.out.println("Usage status: OVERUSE");
-            } else {
-                System.out.println("Usage status: Normal usage");
-            }
-
-            System.out.printf("Usage per person: %.2f units%n",
-                    usagePerPerson);
-
-            if (usagePerPerson > 50) {
-                System.out.println("Per-person status: HIGH USAGE");
-            } else {
-                System.out.println("Per-person status: Normal usage");
-            }
-
-            System.out.println("Reading added successfully.");
 
         } else if (choice == 2) {
 
             System.out.print("Enter consumption: ");
             double consumption = scanner.nextDouble();
 
-            if (consumption < 0) {
-                System.out.println("Consumption cannot be negative.");
+            System.out.println("Choose tariff:");
+            System.out.println("1) Standard tariff (Rs.5 / Rs.8)");
+            System.out.println("2) Premium tariff (Rs.7 / Rs.10)");
+            System.out.print("Tariff choice: ");
+
+            int tariffChoice = scanner.nextInt();
+
+            Tariff selectedTariff;
+
+            if (tariffChoice == 1) {
+                selectedTariff = new StandardTariff();
+            } else if (tariffChoice == 2) {
+                selectedTariff = new PremiumTariff();
             } else {
-                BillCalculator calculator = new BillCalculator();
+                System.out.println("Invalid tariff choice.");
+                scanner.close();
+                return;
+            }
+
+            try {
+                // Polymorphism: the same interface supports either tariff.
+                BillCalculator calculator =
+                        new BillCalculator(selectedTariff);
+
                 double bill = calculator.calculateBill(consumption);
 
                 System.out.println("Consumption: "
                         + consumption + " units");
                 System.out.printf("Bill: Rs.%.2f%n", bill);
+
+            } catch (InvalidConsumptionException e) {
+                System.out.println("Error: " + e.getMessage());
             }
 
         } else if (choice == 3) {
@@ -136,13 +154,11 @@ public class Main {
                 System.out.println(
                         "Households and periods must be greater than zero.");
             } else {
-
                 String[] householdIds = new String[households];
                 double[][] consumptionGrid =
                         new double[households][periods];
 
                 for (int i = 0; i < households; i++) {
-
                     System.out.print("Enter Household ID for household "
                             + (i + 1) + ": ");
                     householdIds[i] = scanner.next();
@@ -151,7 +167,6 @@ public class Main {
                         System.out.print("Enter consumption for "
                                 + householdIds[i] + " - Period "
                                 + (j + 1) + ": ");
-
                         consumptionGrid[i][j] = scanner.nextDouble();
                     }
                 }
