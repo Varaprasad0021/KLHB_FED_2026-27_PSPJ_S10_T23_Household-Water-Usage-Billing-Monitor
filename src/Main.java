@@ -1,268 +1,320 @@
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
+    private static final ArrayList<Reading> history = new ArrayList<>();
+
     public static void main(String[] args) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("\n=== Water Board ===");
+                System.out.println("1) Add reading");
+                System.out.println("2) Bill");
+                System.out.println("3) Report");
+                System.out.println("4) Household Consumption Grid");
+                System.out.println("5) View saved readings");
+                System.out.println("6) View saved bills");
+                System.out.println("7) Exit");
+                System.out.println("8) Reading History");
+                System.out.print("Choice: ");
 
-        Scanner scanner = new Scanner(System.in);
-        ArrayList<Reading> history = new ArrayList<>();
-
-        while (true) {
-
-            System.out.println("\n=== Water Board ===");
-            System.out.println("1) Add reading");
-            System.out.println("2) Bill");
-            System.out.println("3) Report");
-            System.out.println("4) Household Consumption Grid");
-            System.out.println("5) Exit");
-            System.out.println("6) Reading History");
-            System.out.print("Choice: ");
-
-            int choice = scanner.nextInt();
-
-            if (choice == 1) {
-
-                System.out.print("Household ID: ");
-                String householdId = scanner.next();
-
-                System.out.print("Number of occupants: ");
-                int occupants = scanner.nextInt();
-
-                if (occupants <= 0) {
-                    System.out.println(
-                            "Number of occupants must be greater than zero.");
-                    continue;
-                }
-
-                System.out.print("Previous reading: ");
-                double previousReading = scanner.nextDouble();
-
-                System.out.print("Current reading: ");
-                double currentReading = scanner.nextDouble();
-
-                System.out.print("Is there a leak? (true/false): ");
-                boolean leakDetected = scanner.nextBoolean();
-
+                int choice;
                 try {
-                    Household household =
-                            new Household(householdId, occupants);
-
-                    Meter meter =
-                            new Meter(previousReading, currentReading);
-
-                    Reading reading =
-                            new Reading(household, meter, leakDetected);
-
-                    BillCalculator calculator = new BillCalculator();
-
-                    double consumption = reading.getConsumption();
-                    double bill = calculator.calculateBill(consumption);
-
-                    System.out.println("\n=== Reading Details ===");
-                    System.out.println("Household: "
-                            + household.getHouseholdId());
-                    System.out.println("Occupants: "
-                            + household.getOccupants());
-                    System.out.println("Previous reading: "
-                            + meter.getPreviousReading());
-                    System.out.println("Current reading: "
-                            + meter.getCurrentReading());
-                    System.out.printf("Consumption: %.2f units%n",
-                            consumption);
-                    System.out.printf("Standard tariff bill: Rs.%.2f%n",
-                            bill);
-
-                    if (reading.isLeakDetected()) {
-                        System.out.println("Leak status: LIKELY LEAK");
-                    } else {
-                        System.out.println(
-                                "Leak status: No leak detected");
-                    }
-
-                    if (consumption > 200) {
-                        System.out.println("Usage status: OVERUSE");
-                    } else {
-                        System.out.println("Usage status: Normal usage");
-                    }
-
-                    double perPerson = reading.getUsagePerPerson();
-
-                    System.out.printf("Usage per person: %.2f units%n",
-                            perPerson);
-
-                    if (perPerson > 50) {
-                        System.out.println(
-                                "Per-person status: HIGH USAGE");
-                    } else {
-                        System.out.println(
-                                "Per-person status: Normal usage");
-                    }
-
-                    history.add(reading);
-
-                    System.out.println(
-                            "Reading added to history successfully.");
-                    System.out.println("Total saved readings this run: "
-                            + history.size());
-
-                } catch (InvalidReadingException
-                        | InvalidConsumptionException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-
-            } else if (choice == 2) {
-
-                System.out.print("Enter consumption: ");
-                double consumption = scanner.nextDouble();
-
-                System.out.println("Choose tariff:");
-                System.out.println("1) Standard tariff (Rs.5 / Rs.8)");
-                System.out.println("2) Premium tariff (Rs.7 / Rs.10)");
-                System.out.print("Tariff choice: ");
-
-                int tariffChoice = scanner.nextInt();
-
-                Tariff selectedTariff;
-
-                if (tariffChoice == 1) {
-                    selectedTariff = new StandardTariff();
-                } else if (tariffChoice == 2) {
-                    selectedTariff = new PremiumTariff();
-                } else {
-                    System.out.println("Invalid tariff choice.");
+                    choice = scanner.nextInt();
+                } catch (java.util.InputMismatchException e) {
+                    System.out.println("Please enter a valid menu number.");
+                    scanner.nextLine();
                     continue;
                 }
 
-                try {
-                    BillCalculator calculator =
-                            new BillCalculator(selectedTariff);
-
-                    double bill = calculator.calculateBill(consumption);
-
-                    System.out.printf("Consumption: %.2f units%n",
-                            consumption);
-                    System.out.printf("Bill: Rs.%.2f%n", bill);
-
-                } catch (InvalidConsumptionException e) {
-                    System.out.println("Error: " + e.getMessage());
+                switch (choice) {
+                    case 1:
+                        addReading(scanner);
+                        break;
+                    case 2:
+                        generateBill(scanner);
+                        break;
+                    case 3:
+                        showReport();
+                        break;
+                    case 4:
+                        showConsumptionGrid(scanner);
+                        break;
+                    case 5:
+                        showSavedReadings();
+                        break;
+                    case 6:
+                        showSavedBills();
+                        break;
+                    case 7:
+                        System.out.println("Thank you for using Water Board.");
+                        return;
+                    case 8:
+                        showReadingHistory();
+                        break;
+                    default:
+                        System.out.println("Invalid choice.");
                 }
+            }
+        }
+    }
 
-            } else if (choice == 3) {
+    private static void addReading(Scanner scanner) {
+        System.out.print("Household ID: ");
+        String householdId = scanner.next();
 
-                System.out.println("\n=== Water Usage Report ===");
-                System.out.println("Total readings: " + history.size());
+        System.out.print("Number of occupants: ");
+        int occupants = scanner.nextInt();
 
-                double totalConsumption = 0;
+        if (occupants <= 0) {
+            System.out.println(
+                    "Number of occupants must be greater than zero.");
+            return;
+        }
 
-                for (Reading reading : history) {
-                    totalConsumption += reading.getConsumption();
-                }
+        System.out.print("Previous reading: ");
+        double previousReading = scanner.nextDouble();
 
-                System.out.printf("Total consumption: %.2f units%n",
-                        totalConsumption);
+        System.out.print("Current reading: ");
+        double currentReading = scanner.nextDouble();
 
-                if (!history.isEmpty()) {
-                    System.out.printf("Average consumption: %.2f units%n",
-                            totalConsumption / history.size());
-                } else {
-                    System.out.println("No readings recorded yet.");
-                }
+        System.out.print("Is there a leak? (true/false): ");
+        boolean leakDetected = scanner.nextBoolean();
 
-            } else if (choice == 4) {
+        try {
+            Household household = new Household(householdId, occupants);
+            Meter meter = new Meter(previousReading, currentReading);
+            Reading reading = new Reading(household, meter, leakDetected);
 
-                System.out.print("Number of households: ");
-                int households = scanner.nextInt();
+            double consumption = reading.getConsumption();
+            BillCalculator calculator = new BillCalculator();
+            double bill = calculator.calculateBill(consumption);
 
-                System.out.print("Number of periods: ");
-                int periods = scanner.nextInt();
+            WaterDataStore.saveReading(reading);
+            WaterDataStore.saveBill(
+                    householdId, consumption, "Standard", bill);
 
-                if (households <= 0 || periods <= 0) {
-                    System.out.println(
-                            "Households and periods must be greater than zero.");
-                    continue;
-                }
+            history.add(reading);
 
-                String[] householdIds = new String[households];
-                double[][] consumptionGrid =
-                        new double[households][periods];
+            System.out.println("\n=== Reading Details ===");
+            System.out.println("Household: " + household.getHouseholdId());
+            System.out.println("Occupants: " + household.getOccupants());
+            System.out.println("Previous reading: "
+                    + meter.getPreviousReading());
+            System.out.println("Current reading: "
+                    + meter.getCurrentReading());
+            System.out.printf("Consumption: %.2f units%n", consumption);
+            System.out.printf("Standard tariff bill: Rs.%.2f%n", bill);
 
-                for (int i = 0; i < households; i++) {
-                    System.out.print("Enter Household ID for household "
-                            + (i + 1) + ": ");
-                    householdIds[i] = scanner.next();
+            System.out.println("Leak status: "
+                    + (reading.isLeakDetected()
+                    ? "LIKELY LEAK" : "No leak detected"));
 
-                    for (int j = 0; j < periods; j++) {
-                        System.out.print("Enter consumption for "
-                                + householdIds[i] + " - Period "
-                                + (j + 1) + ": ");
-                        consumptionGrid[i][j] = scanner.nextDouble();
-                    }
-                }
+            System.out.println("Usage status: "
+                    + (consumption > 200 ? "OVERUSE" : "Normal usage"));
 
-                System.out.println(
-                        "\n=== Household x Period Consumption Grid ===");
+            System.out.printf("Usage per person: %.2f units%n",
+                    reading.getUsagePerPerson());
 
-                System.out.printf("%-15s", "Household");
+            System.out.println("Per-person status: "
+                    + (reading.getUsagePerPerson() > 50
+                    ? "HIGH USAGE" : "Normal usage"));
 
-                for (int j = 0; j < periods; j++) {
-                    System.out.printf("%-12s", "Period " + (j + 1));
-                }
+            System.out.println(
+                    "Reading and standard bill saved successfully.");
 
-                System.out.println();
+        } catch (InvalidReadingException
+                | InvalidConsumptionException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Could not save data: " + e.getMessage());
+        }
+    }
 
-                for (int i = 0; i < households; i++) {
-                    System.out.printf("%-15s", householdIds[i]);
+    private static void generateBill(Scanner scanner) {
+        System.out.print("Household ID: ");
+        String householdId = scanner.next();
 
-                    for (int j = 0; j < periods; j++) {
-                        System.out.printf("%-12.2f",
-                                consumptionGrid[i][j]);
-                    }
+        System.out.print("Enter consumption: ");
+        double consumption = scanner.nextDouble();
 
-                    System.out.println();
-                }
+        System.out.println("Choose tariff:");
+        System.out.println("1) Standard tariff");
+        System.out.println("2) Premium tariff");
+        System.out.print("Tariff choice: ");
 
-            } else if (choice == 5) {
+        int tariffChoice = scanner.nextInt();
+        Tariff selectedTariff;
+        String tariffName;
 
-                System.out.println(
-                        "Thank you for using Water Board.");
-                break;
+        if (tariffChoice == 1) {
+            selectedTariff = new StandardTariff();
+            tariffName = "Standard";
+        } else if (tariffChoice == 2) {
+            selectedTariff = new PremiumTariff();
+            tariffName = "Premium";
+        } else {
+            System.out.println("Invalid tariff choice.");
+            return;
+        }
 
-            } else if (choice == 6) {
+        try {
+            BillCalculator calculator = new BillCalculator(selectedTariff);
+            double bill = calculator.calculateBill(consumption);
 
-                System.out.println("\n=== Household Reading History ===");
+            System.out.printf("Consumption: %.2f units%n", consumption);
+            System.out.printf("Bill: Rs.%.2f%n", bill);
 
-                if (history.isEmpty()) {
-                    System.out.println("No readings recorded yet.");
-                } else {
-                    for (int i = 0; i < history.size(); i++) {
+            WaterDataStore.saveBill(
+                    householdId, consumption, tariffName, bill);
 
-                        Reading reading = history.get(i);
+            System.out.println("Bill saved successfully.");
 
-                        System.out.println("\nReading " + (i + 1));
-                        System.out.println("Household: "
-                                + reading.getHousehold().getHouseholdId());
-                        System.out.println("Occupants: "
-                                + reading.getHousehold().getOccupants());
-                        System.out.printf("Consumption: %.2f units%n",
-                                reading.getConsumption());
-                        System.out.printf("Usage per person: %.2f units%n",
-                                reading.getUsagePerPerson());
+        } catch (InvalidConsumptionException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Could not save bill: " + e.getMessage());
+        }
+    }
 
-                        System.out.println("Leak status: "
-                                + (reading.isLeakDetected()
-                                ? "LIKELY LEAK"
-                                : "No leak detected"));
-                    }
-                }
+    private static void showSavedReadings() {
+        try {
+            List<String> readings = WaterDataStore.loadReadings();
 
-            } else {
+            System.out.println("\n=== Saved Meter Readings ===");
+            if (readings.isEmpty()) {
+                System.out.println("No saved readings yet.");
+                return;
+            }
 
-                System.out.println("Invalid choice.");
+            for (String reading : readings) {
+                System.out.println(reading);
+            }
+        } catch (IOException e) {
+            System.out.println("Could not load readings: " + e.getMessage());
+        }
+    }
+
+    private static void showSavedBills() {
+        try {
+            List<String> bills = WaterDataStore.loadBills();
+
+            System.out.println("\n=== Saved Bills ===");
+            if (bills.isEmpty()) {
+                System.out.println("No saved bills yet.");
+                return;
+            }
+
+            for (String bill : bills) {
+                System.out.println(bill);
+            }
+        } catch (IOException e) {
+            System.out.println("Could not load bills: " + e.getMessage());
+        }
+    }
+
+    private static void showReport() {
+        try {
+            List<String> readings = WaterDataStore.loadReadings();
+            List<String> bills = WaterDataStore.loadBills();
+
+            System.out.println("\n=== Water Usage Report ===");
+            System.out.println("Saved meter readings: " + readings.size());
+            System.out.println("Saved bills: " + bills.size());
+
+            double totalConsumption = 0;
+            for (Reading reading : history) {
+                totalConsumption += reading.getConsumption();
+            }
+
+            System.out.println("Readings this session: " + history.size());
+            System.out.printf("Session consumption: %.2f units%n",
+                    totalConsumption);
+
+            if (!history.isEmpty()) {
+                System.out.printf("Session average consumption: %.2f units%n",
+                        totalConsumption / history.size());
+            }
+        } catch (IOException e) {
+            System.out.println("Could not load report: " + e.getMessage());
+        }
+    }
+
+    private static void showReadingHistory() {
+        System.out.println("\n=== Household Reading History ===");
+
+        if (history.isEmpty()) {
+            System.out.println("No readings recorded in this session yet.");
+            return;
+        }
+
+        for (int i = 0; i < history.size(); i++) {
+            Reading reading = history.get(i);
+
+            System.out.println("\nReading " + (i + 1));
+            System.out.println("Household: "
+                    + reading.getHousehold().getHouseholdId());
+            System.out.println("Occupants: "
+                    + reading.getHousehold().getOccupants());
+            System.out.printf("Consumption: %.2f units%n",
+                    reading.getConsumption());
+            System.out.printf("Usage per person: %.2f units%n",
+                    reading.getUsagePerPerson());
+            System.out.println("Leak status: "
+                    + (reading.isLeakDetected()
+                    ? "LIKELY LEAK" : "No leak detected"));
+        }
+    }
+
+    private static void showConsumptionGrid(Scanner scanner) {
+        System.out.print("Number of households: ");
+        int households = scanner.nextInt();
+
+        System.out.print("Number of periods: ");
+        int periods = scanner.nextInt();
+
+        if (households <= 0 || periods <= 0) {
+            System.out.println(
+                    "Households and periods must be greater than zero.");
+            return;
+        }
+
+        String[] householdIds = new String[households];
+        double[][] consumptionGrid = new double[households][periods];
+
+        for (int i = 0; i < households; i++) {
+            System.out.print("Enter Household ID for household "
+                    + (i + 1) + ": ");
+            householdIds[i] = scanner.next();
+
+            for (int j = 0; j < periods; j++) {
+                System.out.print("Enter consumption for "
+                        + householdIds[i] + " - Period "
+                        + (j + 1) + ": ");
+                consumptionGrid[i][j] = scanner.nextDouble();
             }
         }
 
-        scanner.close();
+        System.out.println(
+                "\n=== Household x Period Consumption Grid ===");
+        System.out.printf("%-15s", "Household");
+
+        for (int j = 0; j < periods; j++) {
+            System.out.printf("%-12s", "Period " + (j + 1));
+        }
+        System.out.println();
+
+        for (int i = 0; i < households; i++) {
+            System.out.printf("%-15s", householdIds[i]);
+
+            for (int j = 0; j < periods; j++) {
+                System.out.printf("%-12.2f", consumptionGrid[i][j]);
+            }
+            System.out.println();
+        }
     }
 }
