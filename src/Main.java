@@ -1,10 +1,12 @@
 
 import java.io.IOException;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -22,7 +24,6 @@ public class Main {
                 System.out.println("6) View saved bills");
                 System.out.println("7) Exit");
                 System.out.println("8) Reading History");
-                System.out.println("9) Household-wise Consumption Summary");
                 System.out.print("Choice: ");
 
                 int choice;
@@ -59,20 +60,24 @@ public class Main {
                     case 8:
                         showReadingHistory();
                         break;
+                    default:
+                        System.out.println("Invalid choice.");
+                        
                     case 9:
                         showHouseholdSummary();
                         break;
+                    case 10:
+                        showStreamsAnalytics();
+                        break;
                     default:
-                        System.out.println("Invalid choice.");
+
                 }
             }
         }
     }
 
     // W11: Household-wise consumption summary
-    private static void showHouseholdSummary() {
-        System.out.println("\n=== Household-wise Consumption Summary ===");
-
+  
         try {
             List<String> readings = WaterDataStore.loadReadings();
 
@@ -388,5 +393,57 @@ public class Main {
             }
             System.out.println();
         }
+    }
+        private static void showStreamsAnalytics() {
+        System.out.println("\n=== W12: Streams Analytics ===");
+
+        if (history.isEmpty()) {
+            System.out.println(
+                    "No readings in this session. Add readings first.");
+            return;
+        }
+
+        // 1. Total consumption using Java Streams
+        double totalConsumption = history.stream()
+                .mapToDouble(Reading::getConsumption)
+                .sum();
+
+        System.out.printf("Total consumption: %.2f units%n",
+                totalConsumption);
+
+        // 2. Filter readings where leaks were detected
+        List<Reading> leakReadings = history.stream()
+                .filter(Reading::isLeakDetected)
+                .collect(Collectors.toList());
+
+        System.out.println("\n--- Leak-Detected Readings ---");
+
+        if (leakReadings.isEmpty()) {
+            System.out.println("No leak-detected readings.");
+        } else {
+            leakReadings.forEach(reading ->
+                    System.out.printf(
+                            "Household: %s | Date: %s | Consumption: %.2f units%n",
+                            reading.getHousehold().getHouseholdId(),
+                            reading.getReadingDate(),
+                            reading.getConsumption()));
+        }
+
+        // 3. Group consumption by month
+        Map<YearMonth, Double> monthlyUsage = history.stream()
+                .collect(Collectors.groupingBy(
+                        reading -> YearMonth.from(
+                                reading.getReadingDate()),
+                        Collectors.summingDouble(
+                                Reading::getConsumption)));
+
+        System.out.println("\n--- Monthly Consumption ---");
+
+        monthlyUsage.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry ->
+                        System.out.printf("%s : %.2f units%n",
+                                entry.getKey(),
+                                entry.getValue()));
     }
 }
