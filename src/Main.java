@@ -57,12 +57,9 @@ public class Main {
                     case 7:
                         System.out.println("Thank you for using Water Board.");
                         return;
-                    case 8:
+                                       case 8:
                         showReadingHistory();
                         break;
-                    default:
-                        System.out.println("Invalid choice.");
-                        
                     case 9:
                         showHouseholdSummary();
                         break;
@@ -70,14 +67,16 @@ public class Main {
                         showStreamsAnalytics();
                         break;
                     default:
+                        System.out.println("Invalid choice.");
+                        break;
 
                 }
             }
         }
     }
 
-    // W11: Household-wise consumption summary
-  
+      // W11: Household-wise consumption summary
+    private static void showHouseholdSummary() {
         try {
             List<String> readings = WaterDataStore.loadReadings();
 
