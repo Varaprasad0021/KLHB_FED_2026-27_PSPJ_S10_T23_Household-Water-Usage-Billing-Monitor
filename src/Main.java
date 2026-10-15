@@ -1,7 +1,9 @@
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -20,6 +22,7 @@ public class Main {
                 System.out.println("6) View saved bills");
                 System.out.println("7) Exit");
                 System.out.println("8) Reading History");
+                System.out.println("9) Household-wise Consumption Summary");
                 System.out.print("Choice: ");
 
                 int choice;
@@ -56,10 +59,78 @@ public class Main {
                     case 8:
                         showReadingHistory();
                         break;
+                    case 9:
+                        showHouseholdSummary();
+                        break;
                     default:
                         System.out.println("Invalid choice.");
                 }
             }
+        }
+    }
+
+    // W11: Household-wise consumption summary
+    private static void showHouseholdSummary() {
+        System.out.println("\n=== Household-wise Consumption Summary ===");
+
+        try {
+            List<String> readings = WaterDataStore.loadReadings();
+
+            Map<String, Double> totalConsumption = new HashMap<>();
+            Map<String, Integer> readingCounts = new HashMap<>();
+
+            for (String record : readings) {
+                String[] fields = record.split(",");
+
+                if (fields.length != 5) {
+                    continue;
+                }
+
+                try {
+                    String householdId = fields[0];
+                    double previousReading =
+                            Double.parseDouble(fields[2]);
+                    double currentReading =
+                            Double.parseDouble(fields[3]);
+
+                    double consumption = currentReading - previousReading;
+
+                    totalConsumption.put(
+                            householdId,
+                            totalConsumption.getOrDefault(
+                                    householdId, 0.0) + consumption);
+
+                    readingCounts.put(
+                            householdId,
+                            readingCounts.getOrDefault(
+                                    householdId, 0) + 1);
+
+                } catch (NumberFormatException e) {
+                    System.out.println(
+                            "Skipping an invalid reading record.");
+                }
+            }
+
+            if (totalConsumption.isEmpty()) {
+                System.out.println("No saved readings available.");
+                return;
+            }
+
+            System.out.printf("%-18s %-20s %-15s%n",
+                    "Household ID", "Total Consumption", "Readings");
+            System.out.println(
+                    "-------------------------------------------------------");
+
+            for (String householdId : totalConsumption.keySet()) {
+                System.out.printf("%-18s %-20.2f %-15d%n",
+                        householdId,
+                        totalConsumption.get(householdId),
+                        readingCounts.get(householdId));
+            }
+
+        } catch (IOException e) {
+            System.out.println(
+                    "Could not load household summary: " + e.getMessage());
         }
     }
 
@@ -163,7 +234,8 @@ public class Main {
         }
 
         try {
-            BillCalculator calculator = new BillCalculator(selectedTariff);
+            BillCalculator calculator =
+                    new BillCalculator(selectedTariff);
             double bill = calculator.calculateBill(consumption);
 
             System.out.printf("Consumption: %.2f units%n", consumption);
